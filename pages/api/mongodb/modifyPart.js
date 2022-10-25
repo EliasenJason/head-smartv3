@@ -7,8 +7,14 @@ export default async function createPlant(req, res) {
     await connectMongo()
     console.log('connected to mongo')
     console.log('this was received from front end for req.body: ', req.body)
+    const filter = {"_id":"6356c4877d50c97bbdd59b7d"} //req.body.filter
+    const update = {
+      name: 'retainer cap',
+      tricanPartNumber: '123456',
+      } //req.body.update (what the document will now contain)
+    const options = {new: true} //return the document as it was *after* MongoDB applied the given update 
     console.log('retrieving documents')
-    const mongoRes = await partModel.findOneAndUpdate({"_id":"6356c4877d50c97bbdd59b7d"}).exec() //req.body will replace object
+    const mongoRes = await partModel.findOneAndUpdate(filter, update, options).exec() //req.body will replace object
     console.log('documents received')
     res.json({ mongoRes })
   } catch(error) {
