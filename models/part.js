@@ -1,17 +1,22 @@
 import { Schema, model, models } from 'mongoose'
 
 const partSchema = new Schema({
-  name: {
+  partName: {
     type: String,
     required: true
   },
-  tricanPartNumber: {
+  tricanNum: {
+    type: String,
+    required: true,
+    unique: true
+  },
+  vendorNum: {
     type: String,
     required: false
   },
-  venderPartNumber: {
-    type: String,
-    required: false
+  isTest: {
+    type: Boolean,
+    default: false
   },
   pictures: {
     type: [{
