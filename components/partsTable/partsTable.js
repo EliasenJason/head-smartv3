@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react"
 import styled from "styled-components"
 import MOCK_DATA from "../../public/MOCK_DATA.json"
 
@@ -15,13 +16,16 @@ padding: 2em;
   }
 `
 
-export default function PartsTable() {
+export default function PartsTable({allParts}) {
+  
   const handleEdit = (partId) => {
     console.log(`editing ${partId}`)
+    console.log(allParts)
   }
   const handleDelete =(partId) => {
     console.log(`deleting ${partId}`)
   }
+  
   return (
     <>
     <Table>
@@ -36,15 +40,15 @@ export default function PartsTable() {
         </tr>
       </thead>
       <tbody>
-        {MOCK_DATA.map((part) => {
+        {allParts.map((part) => { //{_id: '63582217cccf26fe80ad166e', partName: 'test part', tricanNum: '123321', isTest: true, __v: 0}
           return (
-            <tr key={part.id}>
-              <td>{part.id}</td>
-              <td>{part.part}</td>
-              <td>{part.trican_num}</td>
-              <td>{part.vendor_num}</td>
+            <tr key={part._id}>
+              <td>{part._id}</td>
+              <td>{part.partName}</td>
+              <td>{part.tricanNum}</td>
+              <td>{part.vendorNum}</td>
               <td>[][]</td>
-              <td>{part.test && 'YES'}</td>
+              <td>{part.isTest && 'YES'}</td>
               <td><button onClick={() => handleEdit(part.id)}>Edit</button></td>
               <td><button onClick={() => handleDelete(part.id)}>Delete</button></td>
             </tr>

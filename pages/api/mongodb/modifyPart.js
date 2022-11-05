@@ -14,7 +14,7 @@ export default async function createPlant(req, res) {
       } //req.body.update (what the document will be replaced with)
     const options = {new: true} //return the document as it was *after* MongoDB applied the given update 
     console.log('retrieving documents')
-    const mongoRes = await partModel.findOneAndUpdate(filter, update, options).exec() //req.body will replace object
+    const mongoRes = await partModel.findOneAndUpdate(filter, update, options).exec()
     console.log('documents received')
     res.json({ mongoRes })
   } catch(error) {

@@ -52,7 +52,7 @@ const StyledContainer = styled.div`
 
 
 
-export default function CreatePart({closeWindow}) {
+export default function CreatePart({closeWindow, setAllParts}) {
   const [isLoading, setIsLoading] = useState(false)
   const [newPart, setNewPart] = useState(
     {
@@ -89,6 +89,10 @@ export default function CreatePart({closeWindow}) {
             body: JSON.stringify(newPart)
         })
         const data = await res.json()
+        setAllParts((oldParts) => {
+          return [...oldParts, newPart]
+        })
+        console.log('this has been added to the parts database')
         console.log(data)
         setIsLoading(false)
         closeWindow()
