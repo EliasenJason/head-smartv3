@@ -89,11 +89,18 @@ export default function CreatePart({closeWindow, setAllParts}) {
             body: JSON.stringify(newPart)
         })
         const data = await res.json()
-        setAllParts((oldParts) => {
-          return [...oldParts, newPart]
-        })
-        console.log('this has been added to the parts database')
-        console.log(data)
+        if (!data.error) {
+          console.log('look below here for an id')
+          console.log(data)
+          setAllParts((oldParts) => {
+            return [data, ...oldParts]
+          })
+          console.log('this has been added to the parts database')
+          console.log(data)
+        } else {
+          console.log('ERROR')
+          console.log(data.error)
+        }
         setIsLoading(false)
         closeWindow()
   }
