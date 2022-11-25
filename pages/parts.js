@@ -29,17 +29,13 @@ export default function Parts() {
     console.log('allParts array in state has been updated or loaded:')
     console.log(allParts)
   },[allParts])
-
-  const closeCreatepart = () => {
-    setShowCreatePart(false)
-  }
   
   return (
     <>
       {showCreatepart ? null : <button onClick={() => setShowCreatePart(true)}>Create new part</button>}
       {showCreatepart ? <CreatePart closeWindow={setShowCreatePart} setAllParts={setAllParts} /> : null}
       {isLoading}
-      <PartsTable allParts={allParts}></PartsTable>
+      <PartsTable allParts={allParts} setAllParts={setAllParts}></PartsTable>
     </>
   )
 }

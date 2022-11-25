@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react"
 import styled from "styled-components"
-import MOCK_DATA from "../../public/MOCK_DATA.json"
 
 //will need to use initial props and load from mongodb data to map thru
 
@@ -32,14 +31,36 @@ padding: 2em;
   }
 `
 
-export default function PartsTable({allParts}) {
+export default function PartsTable({allParts, setAllParts}) {
   
   const handleEdit = (partId) => {
     console.log(`editing ${partId}`)
     console.log(allParts)
   }
-  const handleDelete =(partId) => {
-    console.log(`deleting ${partId}`)
+  const handleDelete = async (partId) => {
+    //set loading true
+      try {
+        const res = await fetch('/api/mongodb/deletePart', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(partId)
+        })
+        const data = await res.json()
+        console.log(`deleting ${partId} from database`)
+        if (data.mongoRes._id) {
+          setAllParts((oldParts) => {
+            return oldParts.filter((part) => part._id !== data.mongoRes._id)
+          })
+        }
+        console.log(data.mongoRes._id)
+      } catch(error) {
+        console.log('unable to fetch parts from database')
+        console.log(error)
+      } finally {
+        //set loading false
+      }
   }
   
   return (
