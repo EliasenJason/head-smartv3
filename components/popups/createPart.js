@@ -1,5 +1,7 @@
+import { set } from "mongoose"
 import { useEffect, useState } from "react"
 import styled from "styled-components"
+import Image from "next/image"
 
 const StyledBackgroundBlur = styled.div`
   backdrop-filter: blur(3px);
@@ -59,12 +61,15 @@ export default function CreatePart({closeWindow, setAllParts}) {
       partName: null,
       tricanNum: null,
       vendorNum: null,
-      isTest: false
-    }
-    )
-  
+      isTest: false,
+      picture: [{
+        url: null,
+        cloudinaryId: null
+      }]
+    })
+  const [image, setImage] = useState()
 
-  const handleChange = (event) => {
+  const handleChange = (event) => { //when anything is changed except the picture update setnewpart
     let value
     if (event.target.type === "checkbox") {
       value = event.target.checked
@@ -78,31 +83,34 @@ export default function CreatePart({closeWindow, setAllParts}) {
     }))
   }
 
-  const handleOnSubmit = async (event) => {
+  const handleOnSubmit = async (event) => { //send picture to cloudinary and on success use the response to set all data to mongodb
     event.preventDefault();
-        setIsLoading(true)
-        const res = await fetch('/api/mongodb/createPart', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(newPart)
-        })
-        const data = await res.json()
-        if (!data.error) {
-          console.log('look below here for an id')
-          console.log(data)
-          setAllParts((oldParts) => {
-            return [data, ...oldParts]
-          })
-          console.log('this has been added to the parts database')
-          console.log(data)
-        } else {
-          console.log('ERROR')
-          console.log(data.error)
+    setIsLoading(true)
+
+    const mongoRes = await fetch('/api/mongodb/createPart', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: {
+          mongo: JSON.stringify(newPart)
         }
-        setIsLoading(false)
-        closeWindow()
+    })
+    const data = await mongoRes.json()
+    if (!data.error) {
+      console.log('look below here for an id')
+      console.log(data)
+      setAllParts((oldParts) => {
+        return [data, ...oldParts]
+      })
+      console.log('this has been added to the parts database')
+      console.log(data)
+    } else {
+      console.log('ERROR')
+      console.log(data.error)
+    }
+    setIsLoading(false)
+    closeWindow()
   }
 
   useEffect(()=> console.log(newPart),[newPart])
@@ -120,9 +128,12 @@ export default function CreatePart({closeWindow, setAllParts}) {
               <label htmlFor="vendorNum">vendor Part#</label>
               <input id="vendorNum" name="vendorNum" type="text" onChange={handleChange}/>
               <label htmlFor="isTest">Test Part
-              <input id="isTest" name="isTest" type="checkbox" value={true} onChange={handleChange}/>
+                <input id="isTest" name="isTest" type="checkbox" value={true} onChange={handleChange}/>
               </label>
+              <label htmlFor="picture">Picture</label>
+              <input type="file" name="picture" onChange={(e) => setImage(e.target.files[0])}></input>
               {isLoading ? <p>Sending Data</p> : <StyledSubmitButton type="submit">Create Part</StyledSubmitButton>}
+              {image && <Image src={image.url} alt={image.url} /> }
           </form>
       </StyledContainer>
     </StyledBackgroundBlur>

@@ -16,7 +16,8 @@ const partSchema = new Schema({
   },
   isTest: {
     type: Boolean,
-    default: false
+    default: false,
+    required: false
   },
   pictures: {
     type: [{
