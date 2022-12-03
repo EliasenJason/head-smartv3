@@ -12,6 +12,7 @@ export default function Home() {
       </Head>
 
       <Link href={"/parts"}><button>go to parts page</button></Link>
+      
     </>
   )
 }

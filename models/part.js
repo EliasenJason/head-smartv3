@@ -21,7 +21,6 @@ const partSchema = new Schema({
   },
   pictures: {
     type: [{
-      date: Date,
       url: String,
       cloudinaryId: String
     }],

@@ -2,6 +2,7 @@ import { set } from "mongoose"
 import { useEffect, useState } from "react"
 import styled from "styled-components"
 import Image from "next/image"
+import Router from 'next/router'
 
 const StyledBackgroundBlur = styled.div`
   backdrop-filter: blur(3px);
@@ -62,12 +63,14 @@ export default function CreatePart({closeWindow, setAllParts}) {
       tricanNum: null,
       vendorNum: null,
       isTest: false,
-      picture: [{
+      pictures: [{
         url: null,
         cloudinaryId: null
       }]
     })
   const [image, setImage] = useState()
+
+  useEffect(()=> console.log(newPart),[newPart])
 
   const handleChange = (event) => { //when anything is changed except the picture update setnewpart
     let value
@@ -86,35 +89,52 @@ export default function CreatePart({closeWindow, setAllParts}) {
   const handleOnSubmit = async (event) => { //send picture to cloudinary and on success use the response to set all data to mongodb
     event.preventDefault();
     setIsLoading(true)
-
-    const mongoRes = await fetch('/api/mongodb/createPart', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: {
-          mongo: JSON.stringify(newPart)
-        }
+    let dataToMongo
+    const cloudinaryUploadBody = new FormData()
+    cloudinaryUploadBody.append('file', image)
+    cloudinaryUploadBody.append('upload_preset', 'my_uploads')
+    cloudinaryUploadBody.append('api_key', process.env.CLOUDINARY_API_KEY)
+    fetch(process.env.CLOUDINARY_UPLOAD_URL, {
+      method: 'POST',
+      body: cloudinaryUploadBody
     })
-    const data = await mongoRes.json()
-    if (!data.error) {
-      console.log('look below here for an id')
-      console.log(data)
-      setAllParts((oldParts) => {
-        return [data, ...oldParts]
+    .then(cloudinaryResponse => cloudinaryResponse.json())
+    .then(cloudinaryData => {
+      console.log('response from cloudinary: ')
+      console.log(cloudinaryData)
+      console.log(`url: ${cloudinaryData.url}`)
+      console.log(`public_id: ${cloudinaryData.public_id}`)
+      dataToMongo = {
+        ...newPart,
+        pictures: [{
+          url: cloudinaryData.url,
+          cloudinaryId: cloudinaryData.public_id
+          }]
+      }
+      console.log(dataToMongo)
+        if (cloudinaryData.url) {
+          console.log('added picture to cloudinary')
+          console.log(newPart)
+        }
+        fetch('/api/mongodb/createPart', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(dataToMongo)
+        })
+        .then(mongoResponse => mongoResponse.json())
+        .then(mongoData => {
+          console.log('response from mongoDB: ')
+          console.log(mongoData)
+          setAllParts(oldParts => [...oldParts, mongoData])
+        })
+        
       })
-      console.log('this has been added to the parts database')
-      console.log(data)
-    } else {
-      console.log('ERROR')
-      console.log(data.error)
-    }
     setIsLoading(false)
     closeWindow()
+    console.log('fuck you')
   }
-
-  useEffect(()=> console.log(newPart),[newPart])
-
   return (
     <StyledBackgroundBlur>
       <StyledContainer>
@@ -131,9 +151,8 @@ export default function CreatePart({closeWindow, setAllParts}) {
                 <input id="isTest" name="isTest" type="checkbox" value={true} onChange={handleChange}/>
               </label>
               <label htmlFor="picture">Picture</label>
-              <input type="file" name="picture" onChange={(e) => setImage(e.target.files[0])}></input>
+              <input type="file" onChange={(event)=> setImage(event.target.files[0])}></input>
               {isLoading ? <p>Sending Data</p> : <StyledSubmitButton type="submit">Create Part</StyledSubmitButton>}
-              {image && <Image src={image.url} alt={image.url} /> }
           </form>
       </StyledContainer>
     </StyledBackgroundBlur>
