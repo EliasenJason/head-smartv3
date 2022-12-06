@@ -37,7 +37,9 @@ export default function PartsTable({allParts, setAllParts}) {
     console.log(`editing ${partId}`)
     console.log(allParts)
   }
-  const handleDelete = async (partId) => {
+
+  const handleDelete = async (part) => {
+    console.log(part)
     //set loading true
       try {
         const res = await fetch('/api/mongodb/deletePart', {
@@ -45,10 +47,11 @@ export default function PartsTable({allParts, setAllParts}) {
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify(partId)
+          body: JSON.stringify(part)
         })
         const data = await res.json()
-        console.log(`deleting ${partId} from database`)
+        console.log(`deleting ${part.partName} from database`)
+        console.log(data)
         if (data.mongoRes._id) {
           setAllParts((oldParts) => {
             return oldParts.filter((part) => part._id !== data.mongoRes._id)
@@ -56,7 +59,6 @@ export default function PartsTable({allParts, setAllParts}) {
         }
         console.log(data.mongoRes._id)
       } catch(error) {
-        console.log('unable to fetch parts from database')
         console.log(error)
       } finally {
         //set loading false
@@ -76,7 +78,7 @@ export default function PartsTable({allParts, setAllParts}) {
         </tr>
       </thead>
       <tbody>
-        {allParts.map((part) => { //{_id: '63582217cccf26fe80ad166e', partName: 'test part', tricanNum: '123321', isTest: true, __v: 0}
+        {allParts.map((part) => {
           return (
             <tr key={part._id}>
               <td>{part.partName}</td>
@@ -84,7 +86,7 @@ export default function PartsTable({allParts, setAllParts}) {
               <td>{part.vendorNum}</td>
               <td>[][]</td>
               <td className="test">{part.isTest && 'YES'}</td>
-              <td className="button"><button onClick={() => handleEdit(part._id)}>Edit</button><button onClick={() => handleDelete(part._id)}>Delete</button></td>
+              <td className="button"><button onClick={() => handleEdit(part._id)}>Edit</button><button onClick={() => handleDelete(part)}>Delete</button></td>
             </tr>
           )
         })}
